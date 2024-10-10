@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "kernel.h": "c",
+        "compare": "cpp"
+    },
+    "nrf-connect.topdir": "${nrf-connect.sdk:2.7.0}"
+}
