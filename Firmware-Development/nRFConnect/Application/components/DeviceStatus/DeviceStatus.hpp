@@ -1,10 +1,18 @@
 #ifndef _DEVICE_STATUS_H_
 #define _DEVICE_STATUS_H_
 
-enum DeviceStatus
+#define ENUM_TO_STRING(ENUM) #ENUM
+
+typedef enum 
 {
-    DEV_OK,
-    DEV_ERROR
-};
+    #define STATUS_DEFINE(status) status,
+    #include "DeviceStatusHelper.hpp"
+} DeviceStatus;
+
+typedef struct
+{
+    DeviceStatus status;
+    const char* name;
+} DeviceStatusMapping;
 
 #endif // _DEVICE_STATUS_H_
