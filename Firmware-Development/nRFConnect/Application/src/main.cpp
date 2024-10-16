@@ -5,8 +5,8 @@
 int main(void)
 {
     printk("Ezlo Part 2\n");
-    ALED aled;
-    aled.init();
+    // ALED aled;
+    // aled.init();
     TAS5825M_init();
 
     while (1)

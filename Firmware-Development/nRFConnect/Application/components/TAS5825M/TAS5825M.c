@@ -18,9 +18,9 @@ static const struct device *i2s_dev_tx = DEVICE_DT_GET(DT_ALIAS(speaker));
 
 // #define I2S_TX_NODE  DT_NODELABEL(i2s_rxtx)
 
-#define SAMPLE_FREQUENCY 44100
-#define SAMPLE_BIT_WIDTH 16
-#define BYTES_PER_SAMPLE sizeof(int16_t)
+#define SAMPLE_FREQUENCY 8000
+#define SAMPLE_BIT_WIDTH 32
+#define BYTES_PER_SAMPLE sizeof(int32_t)
 #define NUMBER_OF_CHANNELS 1
 /* Such block length provides an echo with the delay of 100 ms. */
 #define SAMPLES_PER_BLOCK ((SAMPLE_FREQUENCY / 10) * NUMBER_OF_CHANNELS)
@@ -28,8 +28,8 @@ static const struct device *i2s_dev_tx = DEVICE_DT_GET(DT_ALIAS(speaker));
 #define TIMEOUT 1000
 
 #define BLOCK_SIZE (BYTES_PER_SAMPLE * SAMPLES_PER_BLOCK)
-#define BLOCK_COUNT (INITIAL_BLOCKS + 2)
-K_MEM_SLAB_DEFINE_STATIC(mem_slab, BLOCK_SIZE, BLOCK_COUNT, 4);
+#define BLOCK_COUNT (INITIAL_BLOCKS + 10)
+K_MEM_SLAB_DEFINE_STATIC(mem_slab, BLOCK_SIZE, BLOCK_COUNT, BYTES_PER_SAMPLE);
 
 #define NUM_SAMPLES 32
 /* Sine Wave Sample */
@@ -37,11 +37,8 @@ static int16_t data_frame[NUM_SAMPLES] = {
     6392/4,
     12539/4,
     18204/4,
-    23169/4,
-    27244/4,
     30272/4,
     32137/4,
-    32767/4,
     32137/4,
     30272/4,
     27244/4,
@@ -77,9 +74,16 @@ static int16_t data_frame[NUM_SAMPLES] = {
 
 static void process_block_data(void *mem_block, uint32_t number_of_samples)
 {
+    #define PI 3.14159265358979323846
+    #define SINE_FREQUENCY 1378 
+    #define AMPLITUDE 32767 
     int16_t *sample = &((int16_t *)mem_block)[0];
     for (int i = 0; i < number_of_samples; i++) {
         sample[i] = data_frame[i % NUM_SAMPLES];
+        // Calculate the sine wave value for each sample
+        // float t = (float)i / SAMPLE_FREQUENCY; // Time in seconds for the current sample
+        // float sine_value = sinf(2 * PI * SINE_FREQUENCY * t); // Generate sine wave value
+        // sample[i] = (int16_t)(AMPLITUDE * sine_value); // Scale to 16-bit range and store in the buffer
     }
 }
 
@@ -150,7 +154,6 @@ static bool trigger_command(const struct device *i2s_dev_tx,
 
 DeviceStatus TAS5825M_init(void)
 {
-    int ret;
     printk("I2S echo sample\n");
 
     if (!device_is_ready(i2s_dev_tx))
@@ -194,20 +197,27 @@ DeviceStatus TAS5825M_loop(void)
 
     ret = i2s_read(i2s_dev_tx, &mem_block, &block_size);
     if (ret < 0) {
-        printk("Failed to read data: %d\n", ret);
+        LOG_ERR("Failed to read data: %d\n", ret);
         return DEV_ERROR;
     }
-    LOG_INF("%d\n", block_size);
+    // LOG_INF("%d\n", block_size);
+    // ret = k_mem_slab_alloc(&mem_slab, &mem_block, K_NO_WAIT);
+    // if (ret < 0) {
+    //     printk("Failed to allocate TX block %d\n", ret);
+    //     return DEV_ERROR;
+    // }
+    // LOG_INF("%p\n", mem_block);
     // process_block_data(mem_block, SAMPLES_PER_BLOCK);
-    // int16_t *sample = &((int16_t *)mem_block)[0];
+    // int32_t *sample = &((int32_t *)mem_block)[0];
     // for (size_t i = 0; i < SAMPLES_PER_BLOCK; i++)
     // {
     //     printk("%d\n", sample[i]);
     // }
+    // memset(mem_block, 0, block_size * BYTES_PER_SAMPLE);
     
     ret = i2s_write(i2s_dev_tx, mem_block, block_size);
     if (ret < 0) {
-        printk("Failed to write data: %d\n", ret);
+        LOG_ERR("Failed to write data: %d\n", ret);
         return DEV_ERROR;
     }
 
@@ -215,6 +225,7 @@ DeviceStatus TAS5825M_loop(void)
     // 		     I2S_TRIGGER_DROP)) {
     // 	return 0;
     // }
+    // k_mem_slab_free(&mem_slab, mem_block);
 
     return DEV_OK;
 }
