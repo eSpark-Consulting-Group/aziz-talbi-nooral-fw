@@ -18,7 +18,7 @@ static const struct device *i2s_dev_tx = DEVICE_DT_GET(DT_ALIAS(speaker));
 
 // #define I2S_TX_NODE  DT_NODELABEL(i2s_rxtx)
 
-#define SAMPLE_FREQUENCY 8000
+#define SAMPLE_FREQUENCY 44100
 #define SAMPLE_BIT_WIDTH 32
 #define BYTES_PER_SAMPLE sizeof(int32_t)
 #define NUMBER_OF_CHANNELS 1
@@ -225,7 +225,6 @@ DeviceStatus TAS5825M_loop(void)
     // 		     I2S_TRIGGER_DROP)) {
     // 	return 0;
     // }
-    // k_mem_slab_free(&mem_slab, mem_block);
 
     return DEV_OK;
 }
