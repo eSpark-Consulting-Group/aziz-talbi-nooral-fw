@@ -13,4 +13,6 @@ target_include_directories(app PUBLIC ${ZEPHYR_BASE}/subsys/net/ip)
 
 target_sources(app PRIVATE
 	src/main.c
+	src/http_get.c
+	src/ping.c
 )

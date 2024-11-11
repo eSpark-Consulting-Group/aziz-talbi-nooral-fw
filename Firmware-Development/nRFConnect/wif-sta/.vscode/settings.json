@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "http_get.h": "c",
+        "client.h": "c",
+        "kernel.h": "c"
+    }
+}

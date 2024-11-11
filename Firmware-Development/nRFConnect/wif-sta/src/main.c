@@ -29,6 +29,9 @@ LOG_MODULE_REGISTER(sta, CONFIG_LOG_DEFAULT_LEVEL);
 #include <qspi_if.h>
 
 #include "net_private.h"
+#include "http_get.h"
+#include "ping.h"
+
 
 #define WIFI_SHELL_MODULE "wifi"
 
@@ -318,6 +321,8 @@ check_wifi_ready:
 		if (context.connected) {
 			cmd_wifi_status();
 #ifdef CONFIG_WIFI_READY_LIB
+            http_test();
+
 			ret = k_sem_take(&wifi_ready_state_changed_sem, K_FOREVER);
 			if (ret) {
 				LOG_ERR("Failed to take semaphore: %d", ret);
