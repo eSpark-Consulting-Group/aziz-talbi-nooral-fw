@@ -107,8 +107,9 @@ int main(void)
 		uint32_t block_count;
 		uint32_t block_size;
 
-		if (disk_access_init(disk_pdrv) != 0) {
-			LOG_ERR("Storage init ERROR!");
+        int rc = disk_access_init(disk_pdrv);
+		if (rc != 0) {
+			LOG_ERR("Storage init ERROR! %d", rc);
 			break;
 		}
 
